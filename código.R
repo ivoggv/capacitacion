@@ -39,3 +39,4 @@ o <- c("1jan1960", "2jan1960", "31mar1960", "30jul1960")
 z <- as.Date(o, "%d%b%Y")
 z<-format(as.Date(z),"%B-%Y")
 z
+Sys.Date()
