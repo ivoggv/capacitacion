@@ -6,7 +6,8 @@ if (statement) {
 x<-data.frame(var1=1:5,var2=6:10,var3= 11:15)
 class(x)
 x
-# este es un loop
+
+# este es un if
 if (x$var1==2) {
         x$var4<-x$var1*2
 }
