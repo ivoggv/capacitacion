@@ -40,3 +40,11 @@ z <- as.Date(o, "%d%b%Y")
 z<-format(as.Date(z),"%B-%Y")
 z
 Sys.Date()
+
+#le agregaré un loop
+        t<-1:30
+        i<-0
+        for (i in 1:length(t)) {
+                print(t[i])
+        }
+
