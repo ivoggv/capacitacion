@@ -48,4 +48,6 @@ Sys.Date()
         for (i in 1:length(t)) {
                 print(t[i])
         }
+set.seed(5)
+x[sample(nrow(x),size = 2),]
 
