@@ -48,3 +48,6 @@ Sys.Date()
                 print(t[i])
         }
 
+
+        
+set.seed(12)
