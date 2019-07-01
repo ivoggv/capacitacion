@@ -116,7 +116,7 @@ sin_crecimiento+con_crecimiento
 ## Anualidad con pagos decrecientes aritméticos
 Al igual que el ejercicio anterior se debe de hacer mediante dos anualidades. En este ejercicio en la diapositiva 34. 
 ```{r}
-decreciendo<-2*decreasingAnnuity(0.05,4x)
+decreciendo<-2*decreasingAnnuity(0.05,4)
 constante<-12*annuity(0.05,4)
 
 decreciendo
