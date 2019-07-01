@@ -51,3 +51,6 @@ Sys.Date()
 set.seed(5)
 x[sample(nrow(x),size = 2),]
 
+
+        
+set.seed(12)
