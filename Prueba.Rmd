@@ -1,0 +1,15 @@
+---
+title: "Capacitación actuarial"
+author: "Ivo Giulietti"
+date: "7/1/2019"
+output: pdf_document
+---
+
+
+# Capacitación Actuarial 
+
+## R Markdown
+
+
+## Including Plots
+
