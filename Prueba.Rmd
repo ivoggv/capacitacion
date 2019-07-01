@@ -124,5 +124,56 @@ constante
 decreciendo+constante
 ```
 
+#Ejercicios 
+
+## Primer Ejercicio
+```{r}
+#es una anualidad traida a valor presente
+H1<-10000*annuity(0.05,15,m=5,type = "due")
+
+#es una anualidad traida a valor presente con un periodo de diferimiento
+H2<-7000*annuity(0.05,7,m=20,type="due")
+
+#Es una perpetuidad traida a valor presente
+H3<-annuity(0.05,11,m=2,type = "due")
+
+#Esta es la respuesta
+(150000-H1-H2)/H3
+```
+
+## Segundo Ejercicio
+```{r}
+#Cálculo de raul 
+#1231306
+tasa<-((1+0.035)^(1/12)-1)
+(5000/tasa)-1231306
+```
+
+
+
+# Sesión 2 - tarde 
+
+```{r include=FALSE}
+tabla<- read.delim("~/Desktop/Capacitacion R/capacitacion/capacitacion/MattCamm.txt")
+#las tablas deben de tener dos columnas. La edad y la población (lx). Por esto segrego 
+tabla<-tabla[,c(1,4)]
+```
+
+Ahora se creará la tabla de mortalidad con el objeto *lifetable*. Este es un objeto creado en el paquete *lifetable*
+```{r}
+tablamortalidad<-new("lifetable",x=tabla$Edad,lx=tabla$lx)
+class(tablamortalidad)
+head(tablamortalidad)
+
+edades<-c(21:30)
+#para calcular pxt o qxt 
+qxt(tablamortalidad,x=5,t = 10)
+prob_muerte<-qxt(tablamortalidad,edades,t=20)
+tabla2<-cbind(edades,prob_muerte)
+tabla2
+```
+
+
+
 
 
