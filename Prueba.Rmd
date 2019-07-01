@@ -1,0 +1,128 @@
+---
+title: "Capacitación actuarial"
+author: "Ivo Giulietti"
+date: "7/1/2019"
+output: pdf_document
+---
+
+# Sesión 1 - Matemática financiera y anualidades
+## Instalación de los paquetes 
+Se debe instalar el paquete "lifecontingencies"
+
+```{r eval=FALSE}
+install.packages("lifecontingencies")
+library(lifecontingencies)
+```
+
+En el caso que una persona no se acuerde como usar una formula o la estructura del paquete correr cualquiera de los siguientes códigos: 
+
+```{r eval=FALSE}
+?lifecontingencies
+help("lifecontingencies-package")
+#para conocer solo sobre una formula en específico correr el siguiente comando
+?annuity
+annuity(i, n,m=0, k=1,type = "immediate")
+#imediate significa que es una anualidad VENCIDA
+```
+## Ejemplos de anualidades
+### Anualidades al vencimiento 
+
+A continuación se hará un ejemplo con una tasa de interés de **8%** a **5** años. Sin periodo de diferimiento (*m* = 0)
+```{r include=FALSE}
+library(lifecontingencies)
+```
+
+```{r eval=TRUE}
+100*annuity(0.08,5,m=0,k=1,type="immediate")
+```
+Para obtener el valor acumulado entonces se puede usar la formula anterior y multiplicar el valor presente por el interés compuesto en el período de años definido. Sino se puede ocupar la función *Accumulatedvalue* : 
+
+**primera opción con función de VP llevada a valor futuro:**
+
+```{r}
+(100*annuity(0.08,5,m=0,k=1,type="immediate"))*(1+0.08)^5
+```
+
+**segunda opción con función de VF**
+
+```{r}
+100*accumulatedValue(0.08,5,0,1,type = "immediate")
+```
+
+### Anualidades anticipadas
+A continuación se evaluará una anualidad con pagos al inicio del año en lugar de al vencimiento. El único cambio debe de ser **type = "advance"** 
+
+```{r}
+(100*annuity(0.08,5,m=0,k=1,type="advance"))
+```
+Ahora el valor futuro
+```{r}
+(100*accumulatedValue(0.08,5,m=0,k=1,type = "advance"))
+```
+
+## Anualidades con diferimiento
+
+**Opción de pago anticipado**
+```{r}
+#cuando se ocupa "advance" or "due" se pone m= 6 porque es un pago por anticipado.
+#el n= 15 se pone, ya que se refiere al periodo de pagos y no al periodo de total. R suma 15 + 6 (21 años en total, pero como es anticipada da lo mismo que al vencimiento)
+(100*annuity(0.05,15,m=6,k=1,type="due"))
+```
+**Opción de pago al vencimiento**
+```{r}
+#cuando se ocupa "immediate" or "arrears" se pone m= 6 porque es un pago por anticipado.
+#el n= 15 se pone, ya que se refiere al periodo de pagos y no al periodo de total. R suma 15 + 5 (20 años en total)
+(100*annuity(0.05,15,m=5,k=1,type="immediate"))
+```
+
+Ahora el valor futuro en ambos casos
+```{r}
+(100*accumulatedValue(0.08,15,m=6,k=1,type = "due"))
+```
+```{r}
+(100*accumulatedValue(0.08,15,m=5,k=1,type = "immediate"))
+```
+
+## Ejercicio de los hermanos 
+```{r}
+#es una anualidad traida a valor presente
+primero<-7000*annuity(0.07,10)
+
+#es una anualidad traida a valor presente con un periodo de diferimiento
+segundo<-7000*annuity(0.07,10,m=10)
+
+#Es una perpetuidad traida a valor presente
+tercero<-(7000/0.07)/(1.07^20)
+
+primero
+segundo
+tercero
+#El primer hermano es el que más gana
+```
+
+
+## Anualidad con crecimiento aritmético
+
+Se hace mediante 2 anualidades y con la función *Increasing annuity* . En el ejemplo de la clase existe un flujo que que crece de 5 en 5 por 10 periodos iniciando en **15**.
+```{r}
+sin_crecimiento<-10*annuity(0.05,10,type = "due")
+con_crecimiento<-5*increasingAnnuity(0.05,10,type = "due")
+
+sin_crecimiento
+con_crecimiento
+sin_crecimiento+con_crecimiento
+```
+
+## Anualidad con pagos decrecientes aritméticos
+Al igual que el ejercicio anterior se debe de hacer mediante dos anualidades. En este ejercicio en la diapositiva 34. 
+```{r}
+decreciendo<-2*decreasingAnnuity(0.05,4x)
+constante<-12*annuity(0.05,4)
+
+decreciendo
+constante
+decreciendo+constante
+```
+
+
+
