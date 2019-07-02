@@ -148,6 +148,42 @@ H3<-annuity(0.05,11,m=2,type = "due")
 tasa<-((1+0.035)^(1/12)-1)
 (5000/tasa)-1231306
 ```
+## Tercer Ejercicio
+```{r}
+vp<-10000*annuity(0.06,20,m=25,type = "due")
+vp1<-annuity(0.06,25,m=0,k=1,type = "due")
+vp/vp1
+
+#esta sería la demostración utilizando el valor futuro del ahorro del empleador y el vp de los pagos que desea recibir la persona. 
+
+vp2<-10000*annuity(0.06,20,type = "due")
+prueba2<-vp2/accumulatedValue(0.06,25,type="due")
+prueba2
+```
+## Cuarto ejercicio
+
+Hecho en R. Se podría hacer con loops
+```{r}
+t<-(1.06)^(1/12)-1
+nper=(12*10)-1
+i=0
+y=0
+contar = 0 
+
+flujo<-as.numeric()
+for (i in 0:9) {
+        ahorro<-750*(1+0.03)^i
+                for (y in 1:12){
+                        vf<-ahorro*((1+t)^(nper-contar))
+                        contar<-contar+1
+                        flujo<-rbind(flujo,cbind(ahorro,vf))
+                }
+                
+}
+
+saldo_vf<-500000*(1+t)^nper
+saldo_vf+sum(flujo[,2])
+```
 
 
 
