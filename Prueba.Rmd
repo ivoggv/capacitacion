@@ -2,7 +2,9 @@
 title: "Capacitación actuarial"
 author: "Ivo Giulietti"
 date: "7/1/2019"
-output: pdf_document
+output:
+  pdf_document: default
+  word_document: default
 ---
 
 # Sesión 1 - Matemática financiera y anualidades
@@ -208,6 +210,108 @@ prob_muerte<-qxt(tablamortalidad,edades,t=20)
 tabla2<-cbind(edades,prob_muerte)
 tabla2
 ```
+
+## Sesión 2 - Martes 2 de julio - Mañana
+
+Si yo quiero calcular la probabilidad de que alguien de 22 sobreviva 1 año la notación sería la siguiente: $_1P_{22}$:
+
+$\frac{L_{23}}{L_{22}}$
+```{r echo=FALSE}
+994.68/996.45
+```
+
+Si yo quiero calcular la probabilidad de que alguien de 24 muera dentro de un año sería lo siguiente: $_1P_{24}$ y sepodría leer de la siguiente manera: 
+$\frac{L_{24}-L_{25}}{L_{24}}$ 
+```{r echo=FALSE}
+(992.94-991.24)/992.94
+```
+
+Es equivalente a esto:
+$\frac{L_{24}}{L_{24}}$ - $\frac{L_{25}}{L_{24}}$ 
+```{r echo=FALSE}
+(992.94/992.94)-(991.24/992.94)
+```
+o a esto: 
+$ 1 - P_{24} $
+```{r echo=FALSE}
+1-(991.24/992.94)
+```
+
+Luego la probabilidad de $ _3P_{21} $ se puede expresar como: $\frac{L_{24}}{L_{21}}$ y esto es igual a tener la probabilidad multiplicada de cada uno de los años de la siguiente forma:
+
+$\frac{L_{22}}{L_{21}}\cdot\frac{L_{23}}{L_{22}}\cdot\frac{L_{24}}{L_{23}}$
+
+En esta fórmula  se puede hacer eliminación y por ende terminamos con la fórmula inicial. 
+
+Cuando quisieramos ver la probabilidad de que alguien fallezca a los 20 **o** a los 21 **o** a los 22 **o** a los 23 y llegue a los 24. Se vería como la probabilidad de muerte a los 20 más la probabilidad de sobrevivir a los 20 multiplicada por la probabilidad de morir a los 21 más la probabilidad de sobrevivir a los 20 y los 21 por la probabilidad de morir a los 22 más la probabilidad de sobrevivir a los 20,21 y 22 por la probabilida de morir a los 23. Esto se mirara así: 
+$Q_{20}+ P_{20}Q_{21}+P_{20}P_{21}Q_{22}+P_{20}P_{21}P_{22}Q_{23}$ 
+
+Si se quiere resumir esto se mirara así: 
+$Q_{20}+ P_{20}Q_{21} +\ _{2}P_{20}Q_{22} + \ _3P_{20}Q_{23}$
+
+## Ejemplo de probabilidad condicionada 
+
+$_{2|3}Q_{21} = \ P_{21}\cdot\ P_{22}\cdot \ _3Q_{23}$
+
+Realizandolo con *lx*: 
+
+$(\frac{L_{22}}{L_{21}})\cdot(\frac{L_{23}}{L_{22}})\cdot(\frac{L_{23}-L_{26}}{L_{23}})$
+
+Se puede simplificar a la siguiente expresión:
+
+$(\frac{L_{23}-L_{26}}{L_{21}})$
+
+## Ejercicio con tablas de mortabilidad
+
+Lo primero será subir el archivo de excel con las tablas de mortalidad (edad y lx o lm en el caso de que sea anual o mensual)
+```{r include=FALSE}
+library(readxl)
+tablas_de_mortalidad <- read_excel("tablas de mortalidad.xlsx", sheet = "Mensualización_lineall")
+```
+```{r}
+tabla_anual<-tablas_de_mortalidad[,1:2]
+tabla_anual<-tabla_anual[complete.cases(tabla_anual),]
+tabla_mensual<-tablas_de_mortalidad[,6:7]
+
+t_mort_an<-new("lifetable",x=tabla_anual$Edad...1,lx=tabla_anual$lx...2)
+t_mort_men<-new("lifetable",x=tabla_mensual$Edad...6,lx=tabla_mensual$lm)
+head(t_mort_an)
+head(t_mort_men)
+```
+### Ejercicios prácticos en R 
+
+- Ejercicio 1 : $_{20}P_{30}$ 
+
+- Ejercicio 2 : $_{30+\frac{5}{12}}P_{20}$ 
+
+- Ejercicio 3 : $_{25+\frac{8}{12}}Q_{30+\frac{5}{12}}$ 
+
+- Ejercicio 4 : $_{(30+\frac{1}{12})|(20+\frac{5}{12})}Q_{15}$ 
+
+**Una forma de validad que nuestros cálculos esten correctos es revisar que utilizando la tablas de mortalidad anual y mensual deberían de dar la mismas probabilidades** 
+
+```{r}
+#Ejercicio 1 
+pxt(t_mort_an,x = 30,t=20,fractional = "linear")
+pxt(t_mort_men,x = 30*12,t=20*12,fractional = "linear")
+
+
+#Ejercicio 2 
+pxt(t_mort_men,x = 20*12,t=(30*12)+5,fractional = "linear")
+pxt(t_mort_an,x = 20,t=30+(5/12),fractional = "linear")
+
+#Ejercicio 3 
+qxt(t_mort_men,x = (30*12)+5,t=(25*12)+8,fractional = "linear")
+qxt(t_mort_an,x = 30+(5/12),t=25+(8/12),fractional = "linear")
+
+#Ejercicio 4
+pxt(t_mort_men,x = 15*12,t=(30*12)+1,fractional = "linear") * qxt(t_mort_men,x = (45*12)+1,t=(20*12)+5,fractional = "linear")
+pxt(t_mort_an,x = 15,t=(30)+1/12,fractional = "linear") * qxt(t_mort_an,x = (45)+1/12,t=(20)+5/12,fractional = "linear")
+
+```
+
+
+
 
 
 
