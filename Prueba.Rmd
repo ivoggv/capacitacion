@@ -4,7 +4,6 @@ author: "Ivo Giulietti"
 date: "7/1/2019"
 output:
   pdf_document: default
-  word_document: default
 ---
 
 # Sesión 1 - Matemática financiera y anualidades
@@ -308,6 +307,83 @@ qxt(t_mort_an,x = 30+(5/12),t=25+(8/12),fractional = "linear")
 pxt(t_mort_men,x = 15*12,t=(30*12)+1,fractional = "linear") * qxt(t_mort_men,x = (45*12)+1,t=(20*12)+5,fractional = "linear")
 pxt(t_mort_an,x = 15,t=(30)+1/12,fractional = "linear") * qxt(t_mort_an,x = (45)+1/12,t=(20)+5/12,fractional = "linear")
 
+```
+
+# Sesión 3 - Matemática actuarial
+
+## Dotal puro
+
+El dotal puro es una apuesta a que yo seguiré viviendo prácticamente. Entonces necesito saber la probabilidad de que yo viva por un periodo definido de tiempo. Y luego ese pago que haré en el futuro por la probabilidad de que yo viva y luego lo traigo a valor presente recordando de que para nosotros en este curso $\frac{1}{(1+i)}=v$ y por lo tanto para traerlo a valor presente necesito elevar mi $\ v$ por el periodo de tiempo $\ v^n$. 
+
+La fórmula sería así:
+
+$$\ _nP_x \cdot \ v^n =\ _nE_x$$
+Haciendolo con la fórmula sería así:
+```{r}
+pxt(t_mort_an,x=30,t=35)*(1/(1.035)^35)
+```
+Con la formula que ya trae el paquete se utiliza la fórmula Exn. Para eso se necesita transformar la tabla de mortalidad a una tabla actuarial con el siguiente código:
+```{r}
+t_act_an<-new("actuarialtable",x=tabla_anual$Edad...1,lx=tabla_anual$lx...2,interest=0.035)
+Exn(t_act_an,30,35)
+```
+
+## Vida Entera ( Whole Life Insurance )
+La fórmula es la siguiente:
+
+$$ \sum_{t=0}^{\infty} \ _{t}P_x \cdot\ Q_{x+t} \cdot\ v^{t+1}  $$
+y se puede leer de la siguiente manera: $$\ A_{x}$$
+
+### Con diferimiento
+
+Puede darse el caso que una persona difiera el seguro la notación puede escribirse así:
+$$\ _{2|}A_x = \ (_2P_x)(Q_{x+2})v^3 + (_3P_x)(Q_{x+3})v^4 + (_4P_x)(Q_{x+4})v^5 \dots$$
+Esto lo puedo simplificar de la siguiente manera. Tomo como factor común el $(_2P_x)v^2$ y me queda de la siguiente manera:
+$$\ =\ _{2}P_xv^2\ [(Q_{x+2})v + (P_{x+2})(Q_{x+3})v^2 + (_2P_{x+2})(Q_{x+4})v^3 \dots]$$
+Luego voy a sustituir con la siguiente ecuación: $\ y= x+2$ y sustituto de nuevo en la fórmula:
+$$\ =\ _{2}P_xv^2\ [(Q_{y})v + (P_{y})(Q_{y+1})v^2 + (_2P_{y})(Q_{y+2})v^3 \dots]$$
+Como se puede ver la primera parte es igual a nuestro modelo de Dotal puro, ya que es una apuesta que una persona hace a que sobrevivirá en ese periodo de diferimiento. $$\ _{2}P_xv^2 =\ _2E_X$$
+
+y la segunda parte es un tipo de seguro de vida entera por lo que se podría resumir de la siguiente manera:
+
+$$\ _2E_X \cdot\ A_{x+2}  $$ 
+
+### Ejercicios 
+
+Teniendo 300 en valor presente 
+```{r}
+1000*((0.01/1.1)+(0.99/1.1)*0.3)
+```
+
+El siguiente ejercicio se realizará utilizando la actuarial table. 
+- Ejercicio 1: $\ A_{65}$
+- Ejercicio 2: $\ A_{40^1:30}$
+- Ejercicio 3: $\ A_{25^1:45}$
+- Ejercicio 4: $\ _{15|}A_{35}$
+```{r}
+#Para calcular los seguros se usa la formula Axn
+t_act_an_1<-new("actuarialtable",x=tabla_anual$Edad...1,lx=tabla_anual$lx...2,interest=0.06)
+#Ejercicio 1
+Axn(t_act_an_1,x=65)
+#Ejercicio 2
+Axn(t_act_an_1,x=40,n=30)
+#Ejercicio 3
+Axn(t_act_an_1,x=25,n=45,m=20)
+#Ejercicio 4
+Axn(t_act_an_1,x=35,m=15)
+```
+
+## Cargar tablas de mortalidad de El Salvador
+
+Se debe de crear 6 tablas, 1 por cada variable
+```{r}
+tablasv <- read_excel("TablasSV.xlsx", skip = 1)
+m_vejez<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_vejez_M,interest=0.04)
+m_bene<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_benef_M,interest=0.04)
+m_inv<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_inv_M,interest=0.04)
+f_vejez<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_vejez_F,interest=0.04)
+f_bene<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_benef_F,interest=0.04)
+f_inv<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_inv_F,interest=0.04)
 ```
 
 
