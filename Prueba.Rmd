@@ -375,21 +375,219 @@ Axn(t_act_an_1,x=35,m=15)
 
 ## Cargar tablas de mortalidad de El Salvador
 
-Se debe de crear 6 tablas, 1 por cada variable
+Se debe crear 6 tablas, 1 por cada variable luego de importar la tabla.
 ```{r}
+library(readxl)
 tablasv <- read_excel("TablasSV.xlsx", skip = 1)
-m_vejez<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_vejez_M,interest=0.04)
-m_bene<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_benef_M,interest=0.04)
-m_inv<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_inv_M,interest=0.04)
-f_vejez<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_vejez_F,interest=0.04)
-f_bene<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_benef_F,interest=0.04)
-f_inv<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_inv_F,interest=0.04)
+m_vejez<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_vejez_M,interest=0.06)
+m_bene<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_benef_M,interest=0.06)
+m_inv<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_inv_M,interest=0.06)
+f_vejez<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_vejez_F,interest=0.06)
+f_bene<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_benef_F,interest=0.06)
+f_inv<-new("actuarialtable",x=tablasv$Edad,lx=tablasv$lx_inv_F,interest=0.06)
+```
+
+1. $\ 100\cdot ä_{65}$
+2. $\ 120\cdot ä_{65}$
+3. $\ 100\cdot\ _{4|}ä_{65}$
+
+### Ejercicios
+```{r}
+#Anticipada
+h1<-100*axn(m_bene,x = 65)
+#Vencida
+h2<-120*axn(m_bene,x = 65, payment="immediate")
+#Anticipada con diferimiento de 4 años
+h3<-200*axn(m_bene,x = 65, m=4)
+# Este paso es innecesario para efectos de esta pregunta, ya que solo son tres valores, pero en el caso de muchos cálculos se podría ordenar de menor a mayor para saber los datos que nos pide la pregunta.
+preg1<-data.frame(vpa=c(h3,h2,h1))
+preg1<-sort(preg1$vpa)
+preg1<-data.frame(rank=1:length(preg1),vpa=preg1)
+preg1
+```
+
+## Renta Temporal
+
+### Anticipada
+$$ \sum_{t=0}^{n-1} \ _{t}P_x \cdot\ v^{t}$$
+### Vencida
+
+$$ \sum_{t=0}^{n-1} \ _{t+1}P_x \cdot\ v^{t+1}$$
+
+```{r}
+#Anticipada
+ej1<-100*axn(m_bene,x = 65,n=10)
+#Vencida
+ej2<-100*axn(m_bene,x = 64,n=12, payment="immediate")
+#Anticipada con diferimiento de 4 años
+ej3<-180*axn(m_bene,x = 63, m=6,n=18,payment="immediate")
+
+k<-c(ej1,ej2,ej3)
+k
+sort(k)
+
+ej4<-25000*axn(m_bene,x=65,m=20,i=0.05)+10000*annuity(i=0.05,n = 20,type="due")
+ej4
+```
+
+### Ejercicios matemática actuarial 
+
+```{r}
+mattcamm <- read.delim("~/Desktop/Capacitacion R/capacitacion/capacitacion/MattCamm.txt")
+mort<-new("actuarialtable",x=mattcamm$Edad,lx=mattcamm$lx,i=0.04)
+(150000*Axn(mort,x=35,n=20))/(1-Exn(mort,x = 35,n = 20))
+?Exn
+
+A<-500*Iaxn(mort,i=0.04,n = 20,x= 60)
+B<-5000*axn(mort,x=60,i=0.04,n=20)
+A/B
+
+
+mort_men<-new("actuarialtable",x=mattcamm$Edad,lx=mattcamm$lx,i=0.04)
+pen_1<-5000*0.7
+pen_2<-5000*0.9
+
+# Se debe de crear una lista para la función axyzn. Por lo tanto en este caso como solo tengo una tabla utilizo solo la primera dos veces. 
+lista<-list(mort,mort)
+m<-5000*axn(mort,x=45,m=11,n=25)
+
+h<-pen_1*axyzn(lista,x=c(45,50),m=11,status = "joint",i=0.04)
+
+h_1<-pen_2*(axn(mort,x=50,m=11,i=0.04)-axyzn(lista,x=c(45,50),m=11,status = "joint",i=0.04))
+
+#costo total de esa pensión actualmente
+m+h+h_1
+```
+
+Ejercicio 4 
+```{r}
+op1<-2500*axn(mort,x=60) + 1000*axn(mort,x=50)
+op2<-3500*axyzn(lista,x=c(60,50),status = "last",payment = "due")
+op1
+op2
+print("Ivo debería de elegir la segunda opción, ya que tiene un valor presente neto actuarial mayor")
+```
+
+# Sesión 4 
+
+La fórmula relevante para esta sesión es: PVFB = PVFP. El valor presente de los futuros beneficios (lo que va a pagar la empresa) deben de ser igual al valor presente de los futuros profits que obtendrá. 
+```{r}
+numerador<-50000*Axn(mort,x=40,n = 50,i=0.05)
+den_sin_comisión<-axn(mort,x=40,n=50,i=0.05)
+#Esta sería la prima sin cobrar comisiones o gastos siempre porcentuales
+numerador/den_sin_comisión
+den_con_comisión<-0.35*axn(mort,x=40,n=50,i=0.05)
+
+#Esta sería la prima al cobrar comisiones o gastos siempre porcentuales
+numerador/den_con_comisión
+```
+### Renta vilatilica de jubilación
+
+```{r}
+saldo<-700000
+sh<-0.7
+sm<-0.3
+R<-saldo/(sh*axn(mort,x=65,i=0.035)+sm*axn(mort,x=64,i=0.035))
+
+#hombre recibirá
+sh*R
+#mujer recibirá 
+sm*R
 ```
 
 
+```{r}
+viuda<-0.35
+hijo1<-0.14
+hijo2<-0.14
+viuda1<-0.42
 
 
+saldo1<-400000
+r<-saldo1/(viuda*axn(mort,x=42,i=0.04)+hijo1*axn(mort,x=12,n=7,i=0.04)+hijo2*axn(mort,x=8,n=11,i=0.04))
+r
+viuda*r
+hijo1*r
+hijo2*r
 
+r2<-saldo1/(viuda*axn(mort,x=42,i=0.04,n=11)+hijo1*axn(mort,x=12,n=7,i=0.04)+hijo2*axn(mort,x=8,n=11,i=0.04)+viuda1*axn(mort,m=11,x=42,i=0.04))
 
+r2
 
+```
+```{r}
+num<-1000000-30000*annuity(i=0.06,n = 20,type = "due")
+lista_1<-list(m_vejez,f_bene)
+den<-(axn(m_vejez,x = 65,m = 20)+0.7*(axn(f_bene,x = 64)-axyzn(lista_1,x = c(65,64),payment = "due",status = "joint")))
+R<-num/den
+R
+
+# PAra comprobarlo entonces los pagos deben de dar 1,000,000 en valor presente. 
+anualidad<-(30000*annuity(i=0.06,n = 20,type = "due"))
+pago<-(R*axn(m_vejez,x = 65,m = 20))+(0.7*R)*(axn(f_bene,x = 64)-axyzn(lista_1,x = c(65,64),payment = "due",status = "joint"))
+pago+anualidad
+```
+
+```{r}
+num1<-1000000
+den1<-(annuity(i=0.06,n = 20,type = "due")+axn(m_vejez,x = 65,m = 20)+0.7*(axn(f_bene,x = 64)-axyzn(lista_1,x = c(65,64),payment = "due",status = "joint")))
+R2<-num1/den1
+R2
+```
+Ejercicio 3
+```{r}
+
+rent<-0.035
+t<-(1+rent)^(1/12)-1
+imensual<-0.004
+edad<-28
+edad_jub<-60
+nper=(12*(edad_jub-edad))-1
+aporte<-10000*0.15
+i=0
+y=0
+contar1 = 0
+
+tabla<-new("lifetable",x=tablasv$Edad,lx=tablasv$lx_vejez_M)
+
+flujo<-as.numeric()
+for (i in 0:nper) {
+                ahorro<-aporte*(1+imensual)^i
+                vpf<-(ahorro/((1+t)^(contar1)))*pxt(tabla,x=edad,t=(contar1/12),fractional="linear")
+                vff<-(vpf*(1+t)^(nper-contar1))/pxt(tabla,x=edad,t=nper/12,fractional="linear")
+                contar1<-contar1+1
+                flujo<-rbind(flujo,cbind(ahorro,vpf,vff))
+}
+```
+
+```{r}
+flujo_aportaciones<-function(edad,edad_jub,rentabilidad,g,salario,aportacion=0.15,...){
+library(lifecontingencies)
+library(readxl)
+tablasv <- read_excel("TablasSV.xlsx", skip = 1)
+
+rent<-rentabilidad
+t<-(1+rent)^(1/12)-1
+imensual<-g
+edad<-edad
+edad_jub<-edad_jub
+nper=(12*(edad_jub-edad))-1
+aporte<-salario*aportacion
+i=0
+y=0
+contar1 = 0
+
+tabla<-new("lifetable",x=tablasv$Edad,lx=tablasv$lx_vejez_M)
+
+flujo<-as.numeric()
+for (i in 0:nper) {
+                ahorro<-aporte*(1+imensual)^i
+                vpf<-(ahorro/((1+t)^(contar1)))*pxt(tabla,x=edad,t=(contar1/12),fractional="linear")
+                vff<-(vpf*(1+t)^(nper-contar1))/pxt(tabla,x=edad,t=nper/12,fractional="linear")
+                contar1<-contar1+1
+                flujo<-rbind(flujo,cbind(ahorro,vpf,vff))
+}
+flujo
+}
+```
 
